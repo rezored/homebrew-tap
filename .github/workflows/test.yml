@@ -11,6 +11,9 @@ concurrency:
 jobs:
   cask:
     runs-on: macos-14
+    env:
+      # audit --online и livecheck питат GitHub API – без токен споделеният IP на машината изчерпва 60 заявки/час
+      HOMEBREW_GITHUB_API_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v7
       - name: Tap this checkout
