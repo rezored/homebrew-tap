@@ -1,6 +1,6 @@
 cask "cubicle-crew" do
-  version "2.13.1"
-  sha256 "1c91495d5ad9e1e4fc8052039b39abb6edbfaf5c11c204b6a8dc11cfc09d8055"
+  version "2.14.0"
+  sha256 "010f7a901a12ff7a0e43932403b673138c0423be9d69c091a7b5513a6ca61737"
 
   url "https://github.com/rezored/cubicle-crew/releases/download/v#{version}/CubicleCrew-#{version}-mac.dmg"
   name "Cubicle Crew"
