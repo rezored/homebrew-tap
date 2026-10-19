@@ -1,0 +1,16 @@
+name: test
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  cask:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tap this checkout
+        run: |
+          mkdir -p "$(brew --repository)/Library/Taps/rezored"
+          ln -s "$GITHUB_WORKSPACE" "$(brew --repository)/Library/Taps/rezored/homebrew-tap"
+      - run: brew style --cask rezored/tap/cubicle-crew
+      - run: brew audit --cask --online rezored/tap/cubicle-crew
+      - run: brew install --cask rezored/tap/cubicle-crew
+      - run: test -d "/Applications/Cubicle Crew.app" && ! xattr -p com.apple.quarantine "/Applications/Cubicle Crew.app" 2>/dev/null
+      - run: brew uninstall --cask cubicle-crew
