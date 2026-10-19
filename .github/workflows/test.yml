@@ -1,0 +1,35 @@
+name: test
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+# нов commit в същия PR отменя стария run (macOS машините имат опашка)
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  cask:
+    runs-on: macos-14
+    env:
+      # audit --online и livecheck питат GitHub API – без токен споделеният IP на машината изчерпва 60 заявки/час
+      HOMEBREW_GITHUB_API_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Tap this checkout
+        run: |
+          mkdir -p "$(brew --repository)/Library/Taps/rezored"
+          ln -s "$GITHUB_WORKSPACE" "$(brew --repository)/Library/Taps/rezored/homebrew-tap"
+      - run: brew style --cask rezored/tap/cubicle-crew
+      - run: brew audit --cask --online --strict rezored/tap/cubicle-crew
+      - name: livecheck finds the latest release
+        run: brew livecheck --cask rezored/tap/cubicle-crew
+      - run: brew install --cask rezored/tap/cubicle-crew
+      - name: Installed, not quarantined, signature intact
+        run: |
+          APP="/Applications/Cubicle Crew.app"
+          test -d "$APP"
+          ! xattr -p com.apple.quarantine "$APP" 2>/dev/null
+          codesign --verify --deep --verbose=2 "$APP"
+      - run: brew uninstall --cask cubicle-crew
+      - run: test ! -d "/Applications/Cubicle Crew.app"
